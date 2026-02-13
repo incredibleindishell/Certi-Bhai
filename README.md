@@ -108,23 +108,10 @@ cd ESC3
 
 ---
 
-### ESC15: Misconfigured Web Enrollment
+### ESC15: Misconfigured Schema Version 1 Template
 
-**Vulnerability**: Web enrollment interfaces allow authentication bypass or privilege escalation.
+**Vulnerability**: Application Policy Injection.
 
-**What it does**: Exploits misconfigured web enrollment interfaces to request or issue certificates through HTTP-accessible endpoints.
-
-**Usage**:
-
-```powershell
-# Navigate to ESC15 directory
-cd ESC15
-
-# Run the exploitation script
-.
-\esc15.ps1 -templateName "WebEnrollTemplate" `
-            -targetUser "administrator"
-```
 
 ---
 
