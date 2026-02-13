@@ -2,8 +2,6 @@
 
 Certi-Bhai is a comprehensive collection of PowerShell exploitation tools for attacking Active Directory Certificate Services (AD CS) vulnerabilities. This toolkit implements various Escalation Scenarios (ESCs) that demonstrate critical security misconfigurations in ADCS environments.
 
-**Language Composition**: PowerShell (73.9%) | ASP.NET (26.1%)
-
 ## 📋 Table of Contents
 
 - [Overview](#overview)
