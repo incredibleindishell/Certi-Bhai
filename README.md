@@ -76,8 +76,6 @@ cd ESC1
 
 ---
 
----
-
 ### ESC2/3: Any Purpose/Certificate Request Agent Abuse
 
 **Vulnerability**: Certificate Request Agents can request certificates on behalf of any user.
