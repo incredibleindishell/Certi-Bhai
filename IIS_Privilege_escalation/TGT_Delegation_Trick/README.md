@@ -1,4 +1,4 @@
-# ASPX Web shell: Kerberos TGT Extraction via Fake Delegation Trick 
+# ASPX Webshell: Kerberos TGT Extraction via Fake Delegation Trick 
 
 ## Overview
 
